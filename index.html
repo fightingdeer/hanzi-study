@@ -7632,7 +7632,7 @@
             <div class="modal-hanzi" id="modalHanzi">字</div>
             <div class="modal-actions">
                 <button class="modal-btn primary" onclick="openQuark()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">🔍 查看详情</button>
-                <button class="modal-btn secondary" onclick="toggleLearned()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">✓ 标记已学</button>
+                <button class="modal-btn secondary" id="learnBtn" onclick="toggleLearned()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">✓ 标记已学</button>
                 <button class="modal-btn secondary" onclick="closeModal()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">关闭</button>
             </div>
         </div>
@@ -7659,7 +7659,25 @@
             currentUrl = card.getAttribute('data-url');
             currentCard = card;
             document.getElementById('modalHanzi').textContent = currentHanzi;
+
+            // 根据是否已学更新按钮文字
+            const isLearned = learnedChars.includes(currentHanzi);
+            updateLearnButton(isLearned);
+
             document.getElementById('modal').classList.add('active');
+        }
+
+        function updateLearnButton(isLearned) {
+            const btn = document.getElementById('learnBtn');
+            if (isLearned) {
+                btn.innerHTML = '✗ 取消已学';
+                btn.style.background = '#ffebee';
+                btn.style.color = '#c62828';
+            } else {
+                btn.innerHTML = '✓ 标记已学';
+                btn.style.background = '#f5f5f5';
+                btn.style.color = '#333';
+            }
         }
 
         function openQuark() {
@@ -7674,17 +7692,25 @@
             if (!currentHanzi) return;
 
             const index = learnedChars.indexOf(currentHanzi);
+            let isNowLearned;
+
             if (index > -1) {
+                // 取消已学
                 learnedChars.splice(index, 1);
                 currentCard.classList.remove('learned');
+                isNowLearned = false;
             } else {
+                // 标记已学
                 learnedChars.push(currentHanzi);
                 currentCard.classList.add('learned');
+                isNowLearned = true;
             }
+
+            // 更新按钮文字
+            updateLearnButton(isNowLearned);
 
             localStorage.setItem('learnedChars', JSON.stringify(learnedChars));
             updateProgress();
-            closeModal();
         }
 
         function closeModal(event) {
